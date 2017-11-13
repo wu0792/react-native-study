@@ -1,49 +1,62 @@
 import React from 'react'
 import SummaryCard from '../components/summaryCard'
-import { StyleSheet, Text, View, ScrollView, Button, Vibration } from 'react-native'
+import DemoDetail from './demoDetail'
+import shortid from 'shortid'
+import { DEMO_TYPE_LIST_INSTANCE as DEMO_TYPE_LIST } from '../common/enums'
+import { StyleSheet, Text, View, ScrollView, Button, FlatList, NavigatorIOS } from 'react-native'
 
-const DURATION = 10000
-const PATTERN = [500, 500, 500, 500]
+export default class Demo extends React.Component {
+    render() {
+        return (
+            <NavigatorIOS
+                translucent={false}
+                initialRoute={{
+                    component: DemoList,
+                    navigationBarHidden: true,
+                    title: '返回'
+                }}
+                style={{ flex: 1 }}
+            />
+        )
+    }
+}
 
-export default class Project extends React.Component {
+
+class DemoList extends React.Component {
     constructor(props) {
         super(props)
+
+        this.onPressCard = this.onPressCard.bind(this)
 
         this.state = {
             list: []
         }
     }
 
-    onPressVibrate(ev) {
-        Vibration.vibrate(PATTERN, true)
-    }
-
-    onPressCancel(ev) {
-        Vibration.cancel()
-    }
-
     componentWillMount() {
         this.setState({
-            list: [
-                { title: '震动', component: '' }
-            ]
+            list: Object.keys(DEMO_TYPE_LIST.getAll()).map(t => {
+                let theType = DEMO_TYPE_LIST.get(t)
+                return { key: shortid.generate(), title: theType.title, component: theType.component }
+            })
+        })
+    }
+
+    onPressCard(theProp) {
+        this.props.navigator.push({
+            component: DemoDetail,
+            title: theProp.title,
+            passProps: { passProps: theProp }
         })
     }
 
     render() {
         return (
-            // <ScrollView>
-            //     {i.map(v => <Text key={v.key}>{v.key}</Text>)}
-            // </ScrollView>
-
-            // <ScrollView>
-            //     <Button key={0} onPress={this.onPressVibrate} title="震动" ></Button>
-            //     <Button key={1} onPress={this.onPressCancel} title="停止" ></Button>
-            // </ScrollView>
-
             <FlatList
                 data={this.state.list}
-                renderItem={({ item, index }) => <SummaryCard key={index} url={item.url} title={item.title} onPress={this.onPressCard} />}
+                renderItem={({ item }) => {
+                    return <SummaryCard title={item.title} data={item} onPress={this.onPressCard} />
+                }}
             />
         )
     }

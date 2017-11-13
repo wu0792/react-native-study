@@ -34,7 +34,7 @@ class BasicList extends React.Component {
 
     componentWillMount() {
         FetchData.fetchBasicList().then((data) => {
-            this.setState({ list: data })
+            this.setState({ list: data.map(d => { return { ...d, key: shortid.generate() } }) })
         }, (err) => {
             console.warn(err)
         })
@@ -52,7 +52,7 @@ class BasicList extends React.Component {
         return (
             <FlatList
                 data={this.state.list}
-                renderItem={({ item, index }) => <SummaryCard key={index} url={item.url} title={item.title} onPress={this.onPressCard} />}
+                renderItem={({ item, index }) => <SummaryCard url={item.url} title={item.title} onPress={this.onPressCard} />}
             />)
     }
 }
